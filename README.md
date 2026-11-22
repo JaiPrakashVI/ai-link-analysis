@@ -862,6 +862,32 @@ pytest -v
 
 ---
 
+## 🎨 Enterprise Frontend UI (`frontend/`) & Vercel Deployment
+
+A companion enterprise-grade web application is included in the [`frontend/`](./frontend) directory, designed with an **iOS-style minimalist aesthetic** using pure white, hairline borders, and vivid safety orange (`#FF5500`) accents:
+
+- **Typography**: Non-generic, modern geometric typography pairing **Plus Jakarta Sans** (display) and **JetBrains Mono** (telemetry).
+- **Segmented Controls**: iOS-style pill navigation bar seamlessly switching between Technical SEO, Competitors, Search Queries, SEO Strategy, Services, and Audience Demographics.
+- **Visual Diagnostics**: Ground-truth gauges highlighting missing image `alt` attributes, title length SERP optimal ranges, and Schema.org markup.
+- **Zero Emojis**: 100% clean vector SVG icons (`lucide-react`) for professional enterprise credibility.
+
+### Local Development
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+### Deploying to Vercel (1-Click)
+1. Go to **[vercel.com/new](https://vercel.com/new)** and import `JaiPrakashVI/ai-link-analysis`.
+2. Under **Root Directory**, click **Edit** and select **`frontend`**.
+3. Framework Preset: **Vite** (automatically detected).
+4. Build Command: `npm run build` | Output Directory: `dist`.
+5. Click **Deploy**. Vercel will edge-cache the static application globally.
+
+---
+
 ## 📄 License
 
 This project is licensed under the terms of the **MIT License**.
