@@ -2,7 +2,7 @@
 
 from functools import lru_cache
 from typing import Literal
-from pydantic import Field
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -24,7 +24,11 @@ class Settings(BaseSettings):
 
     # Server Bind Configuration
     APP_HOST: str = Field(default="0.0.0.0", description="Host binding IP")
-    APP_PORT: int = Field(default=4000, description="Server port")
+    APP_PORT: int = Field(
+        default=4000,
+        validation_alias=AliasChoices("APP_PORT", "PORT"),
+        description="Server port (accepts APP_PORT or standard Cloud PORT)",
+    )
     ENVIRONMENT: Literal["development", "staging", "production", "test"] = Field(
         default="production",
         description="Deployment runtime environment",

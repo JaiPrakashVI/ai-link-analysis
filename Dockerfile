@@ -38,12 +38,12 @@ RUN chown -R appuser:appuser /app
 # Switch to unprivileged user
 USER appuser
 
-# Expose API port
+# Expose default port
 EXPOSE 4000
 
 # Container healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -f http://127.0.0.1:4000/health || exit 1
+    CMD curl -f http://127.0.0.1:${PORT:-4000}/health || exit 1
 
-# Launch production ASGI server
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "4000"]
+# Launch production ASGI server (adapting to Render/Cloud $PORT or defaulting to 4000)
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-4000}"]
