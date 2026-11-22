@@ -13,6 +13,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 <p align="center">
+  <a href="#-live-deployment--interactive-documentation">Live Deployment</a> •
   <a href="#-executive-summary">Executive Summary</a> •
   <a href="#-system-architecture">Architecture</a> •
   <a href="#-core-differentiators">Differentiators</a> •
@@ -25,6 +26,30 @@
 </p>
 
 </div>
+
+---
+
+## 🌐 Live Deployment & Interactive Documentation
+
+The microservice is containerized and deployed live on Render with automated HTTPS, high concurrency, and live telemetry:
+
+| Resource | Target URL | Description |
+| :--- | :--- | :--- |
+| **Live Base Service URL** | [`https://ai-link-analysis-nwkt.onrender.com`](https://ai-link-analysis-nwkt.onrender.com) | Production gateway & root service info |
+| **POST Analysis Endpoint** | [`https://ai-link-analysis-nwkt.onrender.com/link-analysis`](https://ai-link-analysis-nwkt.onrender.com/link-analysis) | Primary website intelligence & SEO analysis API |
+| **Interactive Swagger UI** | [`https://ai-link-analysis-nwkt.onrender.com/docs`](https://ai-link-analysis-nwkt.onrender.com/docs) | Live OpenAPI 3.1 schema & interactive endpoint tester |
+| **ReDoc Documentation** | [`https://ai-link-analysis-nwkt.onrender.com/redoc`](https://ai-link-analysis-nwkt.onrender.com/redoc) | Alternative structured technical specification |
+| **Health Check & Diagnostics** | [`https://ai-link-analysis-nwkt.onrender.com/health`](https://ai-link-analysis-nwkt.onrender.com/health) | Uptime status, cache size & environment diagnostics |
+
+### Live Quick Test (cURL)
+
+Execute a live analysis against the deployed production API directly from your terminal:
+
+```bash
+curl -X POST https://ai-link-analysis-nwkt.onrender.com/link-analysis \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://crest.dxora.com"}'
+```
 
 ---
 
@@ -253,10 +278,18 @@ The server binds to `0.0.0.0:4000`:
 
 ### Production cURL Example
 
+**Live Render Deployment:**
+```bash
+curl -X POST https://ai-link-analysis-nwkt.onrender.com/link-analysis \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://crest.dxora.com"}'
+```
+
+**Local Instance (`localhost:4000`):**
 ```bash
 curl -X POST http://localhost:4000/link-analysis \
   -H "Content-Type: application/json" \
-  -d '{"url": "https://apexanalytics.io"}'
+  -d '{"url": "https://crest.dxora.com"}'
 ```
 
 ### Complete Response Payload (HTTP 200 OK)
