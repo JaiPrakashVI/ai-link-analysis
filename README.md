@@ -72,52 +72,52 @@ The following diagram illustrates the complete execution topology, from incoming
 
 ```mermaid
 flowchart TD
-    A[Client Request: POST /link-analysis] --> B[FastAPI Gateway :4000]
-    B --> C[app/utils/validators.py]
+    A["Client Request: POST /link-analysis"] --> B["FastAPI Gateway :4000"]
+    B --> C["app/utils/validators.py"]
     
     subgraph SSRF_Shield["1. Defense-in-Depth SSRF Validation"]
-        C --> C1{Protocol Check}
-        C1 -- Non HTTP/HTTPS --> ERR1[HTTP 400 / 422 Error]
-        C1 -- HTTP/HTTPS --> C2[DNS Resolution socket.getaddrinfo]
-        C2 --> C3{Prohibited CIDR?}
-        C3 -- Loopback / Private / Cloud Metadata / CGNAT --> ERR2[HTTP 400 Prohibited Destination]
-        C3 -- Safe Public IP --> D[app/services/analysis_service.py]
+        C --> C1{"Protocol Check"}
+        C1 -- "Non HTTP/HTTPS" --> ERR1["HTTP 400 / 422 Error"]
+        C1 -- "HTTP/HTTPS Valid" --> C2["DNS Resolution socket.getaddrinfo"]
+        C2 --> C3{"Destination IP Check"}
+        C3 -- "Loopback / Private / Metadata" --> ERR2["HTTP 400 Prohibited Destination"]
+        C3 -- "Safe Public IP" --> D["app/services/analysis_service.py"]
     end
 
     subgraph Caching_Tier["2. In-Memory TTL Cache Tier"]
-        D --> E{URL in TTL Cache?}
-        E -- Cache Hit --> F[Return Cached Response<br/>Latency: <5ms | Cost: $0.00<br/>cached: true]
+        D --> E{"URL in TTL Cache?"}
+        E -- "Cache Hit" --> F["Return Cached Response<br/>Latency: under 5ms, Cost: 0.00 USD<br/>cached: true"]
     end
 
     subgraph Scraper_Auditor["3. Ingestion & Deterministic SEO Engine"]
-        E -- Cache Miss --> G[app/services/website_extractor.py]
-        G --> G1[HTTPX Async Client<br/>Redirect Hook: verify_redirect_hop]
-        G1 -- Redirect to Private IP --> ERR3[Abort Request: SSRF Prohibited]
-        G1 -- Fetch HTML text/html --> G2[BeautifulSoup DOM Parser]
-        G2 --> G3[Compute Deterministic SEO Audit<br/>Tags, Alt Ratio, Canonical, JSON-LD]
-        G2 --> G4[Distill Semantic Body Copy<br/>Strip Boilerplate & Cap <= 15k chars]
+        E -- "Cache Miss" --> G["app/services/website_extractor.py"]
+        G --> G1["HTTPX Async Client<br/>Redirect Hook: verify_redirect_hop"]
+        G1 -- "Redirect to Private IP" --> ERR3["Abort Request: SSRF Prohibited"]
+        G1 -- "Fetch HTML" --> G2["BeautifulSoup DOM Parser"]
+        G2 --> G3["Compute Deterministic SEO Audit<br/>Tags, Alt Ratio, Canonical, JSON-LD"]
+        G2 --> G4["Distill Semantic Body Copy<br/>Strip Boilerplate, Cap at 15000 chars"]
     end
 
     subgraph LLM_Hierarchy["4. Dual-Tier LLM Reasoning Tier"]
-        G3 & G4 --> H[app/services/llm_service.py]
-        H --> H1[Build Prompt with Strict Audit Facts]
-        H1 --> H2[Attempt Primary: gemini-2.5-flash<br/>temperature=0.2, response_schema=LLMAnalysisOutput]
-        H2 -- Success --> J[Extract Token Telemetry & Compute USD Cost]
-        H2 -- Quota / RateLimit / 5xx Error --> H3[Automatic Failover: gemini-2.5-flash-lite]
+        G3 --> H["app/services/llm_service.py"]
+        G4 --> H
+        H --> H1["Build Prompt with Strict Audit Facts"]
+        H1 --> H2["Primary: Gemini Flash<br/>temperature=0.2, Strict Pydantic Schema"]
+        H2 -- "Success" --> J["Extract Token Telemetry and Compute USD Cost"]
+        H2 -- "API Error / Quota Spike" --> H3["Automatic Failover: Gemini Flash-Lite"]
         H3 --> J
     end
 
     subgraph Post_Processing["5. Competitor Normalization & Storage"]
-        J --> K[app/services/competitor_service.py<br/>Enforce >=3 Competitors & AI Source Notes]
-        K --> L[Assemble LinkAnalysisResponse]
-        L --> M[Save to In-Memory TTL Cache<br/>TTL = 3600s]
-        M --> N[Return HTTP 200 JSON Response]
+        J --> K["app/services/competitor_service.py<br/>Enforce 3+ Competitors and AI Notes"]
+        K --> L["Assemble LinkAnalysisResponse"]
+        L --> M["Save to In-Memory TTL Cache<br/>TTL = 3600s"]
+        L --> N["Return HTTP 200 JSON Response"]
     end
 
     classDef security fill:#ffebee,stroke:#c62828,stroke-width:2px;
     classDef cache fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
     classDef llm fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef normal fill:#f5f5f5,stroke:#616161,stroke-width:1px;
 
     class ERR1,ERR2,ERR3 security;
     class F,M cache;
