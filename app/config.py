@@ -36,11 +36,11 @@ class Settings(BaseSettings):
 
     # LLM Model Hierarchy & Fallback
     PRIMARY_MODEL: str = Field(
-        default="gemini-2.5-flash",
+        default="gemini-3.1-flash-lite",
         description="Primary model for high-signal structured link analysis",
     )
     FALLBACK_MODEL: str = Field(
-        default="gemini-2.5-flash-lite",
+        default="gemini-3.5-flash-lite",
         description="Resilience fallback model in case of primary model unavailability",
     )
 
