@@ -149,6 +149,18 @@ class LLMService:
             (self.settings.FALLBACK_MODEL, "fallback"),
         ]
 
+        # Adaptive fallback cascade ensuring resilience across legacy and modern Google AI Studio accounts
+        adaptive_candidates = [
+            ("gemini-3.1-flash-lite", "adaptive-fallback"),
+            ("gemini-3.5-flash-lite", "adaptive-fallback"),
+            ("gemini-3.5-flash", "adaptive-fallback"),
+        ]
+        seen_models = {m[0] for m in models_to_try}
+        for cand, tier in adaptive_candidates:
+            if cand not in seen_models:
+                models_to_try.append((cand, tier))
+                seen_models.add(cand)
+
         last_exception: Optional[Exception] = None
 
         for model_name, tier in models_to_try:
